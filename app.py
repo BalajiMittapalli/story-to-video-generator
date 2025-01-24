@@ -61,9 +61,10 @@ class Project:
 
 def create_scenes(prompt_template):
     chain = LLMChain(llm=llm, prompt=prompt_template)
+    story= "A boy sleeping on his bed at night wanted to drink water, so he went to fridge and while taking water from the fridge something fell on top of him, so he ran to his bed but felt that something maybe sleeping in his sheets. so he went under the bed to sleep but then there is a hgost there, and then he suddenly woke from his dream and realised that it was just a dream."
     response = chain.invoke({
                 "name": "fear at night",
-                "story": "A boy sleeping on his bed at night wanted to drink water, so he went to fridge and while taking water from the fridge something fell on top of him, so he ran to his bed but felt that something maybe sleeping in his sheets. so he went under the bed to sleep but then there is a hgost there, and then he suddenly woke from his dream and realised that it was just a dream."
+                "story": story
             })
     
     raw_response = response['text'].strip()
@@ -86,17 +87,18 @@ def create_scenes(prompt_template):
             scenes.append(scene)
         
 
-        project = Project()
-        project.name = "fear at night"
-        project.story = "A boy sleeping on his bed..."
-        project.scenes = scenes
+        project = Project(
+            name="fear at night",
+            story=story,
+            scenes=scenes
+        )
         
-        # Optional: Print or return the results
         print(f"Created project with {len(scenes)} scenes:")
         for scene in scenes:
             print(f"Scene {scene.index}:")
             print(f"Image prompt: {scene.image_prompt}")
             print(f"Audio text: {scene.audio_text}\n")
+        # print(project.scenes)
         
         return project
         
@@ -104,21 +106,12 @@ def create_scenes(prompt_template):
         print(f"JSON Decode Error: {e}")
     except Exception as e:
         print(f"Error processing response: {e}")
-    # print(response)
-    # format_res = response['text'].strip()
-    # if format_res.startswith("json") and format_res.endswith(""):
-    #     format_res = format_res[7:-3].strip()
-    # try:
-    #     response_json = json.loads(format_res)
-    #     print("Formatted res JSON - ", response_json)
-    # except json.JSONDecodeError as e:
-    #             print(f"JSON Decode Error: {e}")
 
 create_scenes(prompt_template)
 
 
 
-
+'''
 def poll_for_completion(prediction_id: str) -> Optional[str]:
     headers = {
         'Authorization': 'Bearer ' + REPLICATE_API_KEY,
@@ -142,8 +135,7 @@ def poll_for_completion(prediction_id: str) -> Optional[str]:
                     print(f"Prediction failed or was canceled: {prediction}")
                     return None
                 else:
-                    print(f"Prediction status: {
-                          status}. Polling again in 5 seconds...")
+                    print(f"Prediction status: {status}. Polling again in 5 seconds...")
                     time.sleep(5)
             else:
                 print(f"Error polling prediction: {response.status_code}")
@@ -208,8 +200,7 @@ def create_images(project: Project):
                         scene.imageFile = image_path
                         index += 1
                     else:
-                        print(f"Failed to download image: {
-                              image_response.status_code}")
+                        print(f"Failed to download image: {image_response.status_code}")
                 else:
                     print("Prediction did not complete successfully.")
             else:
@@ -218,7 +209,8 @@ def create_images(project: Project):
         except requests.exceptions.RequestException as e:
             print(f"Request failed: {e}")
 
-
+'''
+            
 def create_audio():
     pass
 
@@ -231,6 +223,7 @@ def merge_video_scenes():
     pass
 
 
+'''
 def main():
     project = Project(
         name="My Story",
@@ -251,4 +244,4 @@ if __name__ == "__main__":
     main()
 
 
-
+'''
