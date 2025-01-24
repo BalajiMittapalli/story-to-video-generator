@@ -3,6 +3,7 @@ from langchain_google_genai import GoogleGenerativeAI
 from langchain.prompts import PromptTemplate
 from langchain.chains.llm import LLMChain
 from dotenv import load_dotenv
+from gtts import gTTS
 import os
 import json
 
@@ -45,11 +46,12 @@ prompt_template = PromptTemplate(
 
 
 class Scene:
-    index: int
-    imagePrompt: str
-    audioText: str
-    imageFile: str | None
-    audioFile: str | None
+    def __init__(self):
+        self.index: int = 0
+        self.image_prompt: str = ""  
+        self.audio_text: str = ""    
+        self.image_file: str | None = None
+        self.audio_file: str | None = None
 
 
 class Project:
@@ -208,10 +210,39 @@ def create_images(project: Project):
         except requests.exceptions.RequestException as e:
             print(f"Request failed: {e}")
 
+            
+            
+def create_audio(project: Project, language: str = 'en', slow: bool = False):
+    
+    if not project or not project.name:
+        print("Invalid project or missing project name")
+        return
+
+    
+    clean_name = "".join([c if c.isalnum() or c in "-_ " else "" for c in project.name]).strip()
+    audio_dir = os.path.join("generations", "audio", clean_name.replace(" ", "-"))
+    os.makedirs(audio_dir, exist_ok=True)
+
+    for idx, scene in enumerate(project.scenes, start=1):
+        if not scene.audio_text:  
+            print(f"Skipping scene {idx} - no audio text")
+            continue
+
+        try:
+            
+            base_name = f"scene_{idx}_{clean_name[:20]}".replace(" ", "_").lower()
+            filepath = os.path.join(audio_dir, f"{base_name}.mp3")
 
             
-def create_audio():
-    pass
+            tts = gTTS(text=scene.audio_text, lang=language, slow=slow)
+            tts.save(filepath)
+            
+            
+            scene.audio_file = filepath  
+            print(f"Created audio for scene {idx}: {filepath}")
+
+        except Exception as e:
+            print(f"Error generating audio for scene {idx}: {str(e)}")
 
 
 def image_to_video_with_captions_overlay_and_audio():
@@ -241,3 +272,8 @@ def main():
 if __name__ == "__main__":
     os.makedirs(GENERATIONS_DIR, exist_ok=True)
     main()
+
+    
+
+
+
