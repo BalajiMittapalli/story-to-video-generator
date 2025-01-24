@@ -111,7 +111,6 @@ create_scenes(prompt_template)
 
 
 
-'''
 def poll_for_completion(prediction_id: str) -> Optional[str]:
     headers = {
         'Authorization': 'Bearer ' + REPLICATE_API_KEY,
@@ -209,7 +208,7 @@ def create_images(project: Project):
         except requests.exceptions.RequestException as e:
             print(f"Request failed: {e}")
 
-'''
+
             
 def create_audio():
     pass
@@ -223,7 +222,7 @@ def merge_video_scenes():
     pass
 
 
-'''
+
 def main():
     project = Project(
         name="My Story",
@@ -242,6 +241,3 @@ def main():
 if __name__ == "__main__":
     os.makedirs(GENERATIONS_DIR, exist_ok=True)
     main()
-
-
-'''
