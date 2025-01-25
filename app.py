@@ -1,13 +1,26 @@
-from typing import List
+from typing import List, Optional
 from langchain_google_genai import GoogleGenerativeAI
 from langchain.prompts import PromptTemplate
 from langchain.chains.llm import LLMChain
+
 from dotenv import load_dotenv
 from gtts import gTTS
 import os
+import requests
 import json
+import time
 
 load_dotenv()
+
+
+
+REPLICATE_API_KEY = os.getenv("REPLICATE_API_KEY")
+REPLICATE_API_URL = "https://api.replicate.com/v1/predictions"
+REPLICATE_MODEL = "ac732df83cea7fff18b8472768c88ad041fa750ff7682a21affe81863cbe77e4"
+IMAGE_HEIGHT = 768
+IMAGE_WIDTH = 1024
+GENERATIONS_DIR = "generations"
+
 
 llm = GoogleGenerativeAI(
     model="gemini-1.5-flash",
@@ -108,9 +121,6 @@ def create_scenes(prompt_template):
         print(f"JSON Decode Error: {e}")
     except Exception as e:
         print(f"Error processing response: {e}")
-
-create_scenes(prompt_template)
-
 
 
 def poll_for_completion(prediction_id: str) -> Optional[str]:
