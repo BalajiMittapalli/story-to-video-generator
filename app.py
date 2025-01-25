@@ -13,7 +13,6 @@ import time
 load_dotenv()
 
 
-
 REPLICATE_API_KEY = os.getenv("REPLICATE_API_KEY")
 REPLICATE_API_URL = "https://api.replicate.com/v1/predictions"
 REPLICATE_MODEL = "ac732df83cea7fff18b8472768c88ad041fa750ff7682a21affe81863cbe77e4"
@@ -56,15 +55,13 @@ prompt_template = PromptTemplate(
                 Answer:""")
 
 
-
-
 class Scene:
     def __init__(self):
         self.index: int = 0
-        self.image_prompt: str = ""  
-        self.audio_text: str = ""    
-        self.image_file: str | None = None
-        self.audio_file: str | None = None
+        self.image_prompt: str = ""
+        self.audio_text: str = ""
+        self.image_file: Optional[str] = None
+        self.audio_file: Optional[str] = None
 
 
 class Project:
@@ -73,25 +70,27 @@ class Project:
         self.story = story
         self.scenes = scenes
 
+    @property
+    def project_dir(self):
+        return os.path.join(GENERATIONS_DIR, self.name.replace(" ", "-"))
+
 
 def create_scenes(prompt_template):
     chain = LLMChain(llm=llm, prompt=prompt_template)
-    story= "A boy sleeping on his bed at night wanted to drink water, so he went to fridge and while taking water from the fridge something fell on top of him, so he ran to his bed but felt that something maybe sleeping in his sheets. so he went under the bed to sleep but then there is a hgost there, and then he suddenly woke from his dream and realised that it was just a dream."
+    story = "A boy sleeping on his bed at night wanted to drink water, so he went to fridge and while taking water from the fridge something fell on top of him, so he ran to his bed but felt that something maybe sleeping in his sheets. so he went under the bed to sleep but then there is a hgost there, and then he suddenly woke from his dream and realised that it was just a dream."
     response = chain.invoke({
-                "name": "fear at night",
+        "name": "fear at night",
                 "story": story
-            })
-    
+    })
+
     raw_response = response['text'].strip()
-    
 
     if raw_response.startswith("```json"):
         raw_response = raw_response[7:-3].strip()
-    
+
     try:
         response_json = json.loads(raw_response)
         scenes_data = response_json.get("scenes", [])
-
 
         scenes = []
         for idx, scene_data in enumerate(scenes_data, start=1):
@@ -100,23 +99,22 @@ def create_scenes(prompt_template):
             scene.image_prompt = scene_data.get("image_prompt", "")
             scene.audio_text = scene_data.get("audio_text", "")
             scenes.append(scene)
-        
 
         project = Project(
             name="fear at night",
             story=story,
             scenes=scenes
         )
-        
+
         print(f"Created project with {len(scenes)} scenes:")
         for scene in scenes:
             print(f"Scene {scene.index}:")
             print(f"Image prompt: {scene.image_prompt}")
             print(f"Audio text: {scene.audio_text}\n")
         # print(project.scenes)
-        
+
         return project
-        
+
     except json.JSONDecodeError as e:
         print(f"JSON Decode Error: {e}")
     except Exception as e:
@@ -146,7 +144,8 @@ def poll_for_completion(prediction_id: str) -> Optional[str]:
                     print(f"Prediction failed or was canceled: {prediction}")
                     return None
                 else:
-                    print(f"Prediction status: {status}. Polling again in 5 seconds...")
+                    print(f"Prediction status: {
+                          status}. Polling again in 5 seconds...")
                     time.sleep(5)
             else:
                 print(f"Error polling prediction: {response.status_code}")
@@ -162,21 +161,21 @@ def create_images(project: Project):
     headers = {
         'Authorization': 'Bearer ' + REPLICATE_API_KEY,
         'Content-Type': 'application/json',
-        'Prefer': 'wait'
     }
 
-    project_dir = os.path.join(GENERATIONS_DIR, project.name.replace(" ", "-"))
-    os.makedirs(project_dir, exist_ok=True)
-
-    index = 1
+    images_dir = os.path.join(project.project_dir, "images")
+    os.makedirs(images_dir, exist_ok=True)
 
     for scene in project.scenes:
+        if not scene.image_prompt:
+            continue
+
         body = {
             "version": REPLICATE_MODEL,
             "input": {
                 "width": IMAGE_WIDTH,
                 "height": IMAGE_HEIGHT,
-                "prompt": scene.imagePrompt,
+                "prompt": scene.image_prompt,
                 "scheduler": "K_EULER",
                 "num_outputs": 1,
                 "guidance_scale": 7.5,
@@ -190,69 +189,43 @@ def create_images(project: Project):
                 headers=headers,
                 json=body
             )
-
+            response.raise_for_status()
             response = request.json()
-            print("Response:", response)
-
             prediction_id = response.get("id")
-            print("Prediction ID:", prediction_id)
-            if prediction_id:
-                output_url = poll_for_completion(prediction_id)
-                print("Output URL:", output_url)
-                if output_url:
-                    image_path = os.path.join(project_dir, f"{index}.png")
-                    image_response = requests.get(output_url)
 
-                    if image_response.status_code == 200:
-                        with open(image_path, "wb") as image_file:
-                            image_file.write(image_response.content)
-                        print(f"Image saved to: {image_path}")
+            if output_url := poll_for_completion(prediction_id):
+                image_path = os.path.join(images_dir, f"{scene.index}.png")
+                img_response = requests.get(output_url)
+                img_response.raise_for_status()
 
-                        scene.imageFile = image_path
-                        index += 1
-                    else:
-                        print(f"Failed to download image: {image_response.status_code}")
-                else:
-                    print("Prediction did not complete successfully.")
+                with open(image_path, "wb") as f:
+                    f.write(img_response.content)
+
+                scene.image_file = image_path
+                print(f"Generated image for scene {scene.index}")
             else:
                 print("No prediction ID found in the response.")
 
-        except requests.exceptions.RequestException as e:
-            print(f"Request failed: {e}")
+        except Exception as e:
+            print(f"Error generating image for scene {scene.index}: {str(e)}")
 
-            
-            
-def create_audio(project: Project, language: str = 'en', slow: bool = False):
-    
-    if not project or not project.name:
-        print("Invalid project or missing project name")
-        return
 
-    
-    clean_name = "".join([c if c.isalnum() or c in "-_ " else "" for c in project.name]).strip()
-    audio_dir = os.path.join("generations", "audio", clean_name.replace(" ", "-"))
+def create_audio(project: Project):
+    audio_dir = os.path.join(project.project_dir, "audio")
     os.makedirs(audio_dir, exist_ok=True)
 
-    for idx, scene in enumerate(project.scenes, start=1):
-        if not scene.audio_text:  
-            print(f"Skipping scene {idx} - no audio text")
+    for scene in project.scenes:
+        if not scene.audio_text:
             continue
 
         try:
-            
-            base_name = f"scene_{idx}_{clean_name[:20]}".replace(" ", "_").lower()
-            filepath = os.path.join(audio_dir, f"{base_name}.mp3")
-
-            
-            tts = gTTS(text=scene.audio_text, lang=language, slow=slow)
+            filepath = os.path.join(audio_dir, f"{scene.index}.mp3")
+            tts = gTTS(text=scene.audio_text, lang='en', slow=False)
             tts.save(filepath)
-            
-            
-            scene.audio_file = filepath  
-            print(f"Created audio for scene {idx}: {filepath}")
-
+            scene.audio_file = filepath
+            print(f"Generated audio for scene {scene.index}")
         except Exception as e:
-            print(f"Error generating audio for scene {idx}: {str(e)}")
+            print(f"Error generating audio for scene {scene.index}: {str(e)}")  
 
 
 def image_to_video_with_captions_overlay_and_audio():
@@ -261,7 +234,6 @@ def image_to_video_with_captions_overlay_and_audio():
 
 def merge_video_scenes():
     pass
-
 
 
 def main():
@@ -282,8 +254,3 @@ def main():
 if __name__ == "__main__":
     os.makedirs(GENERATIONS_DIR, exist_ok=True)
     main()
-
-    
-
-
-
