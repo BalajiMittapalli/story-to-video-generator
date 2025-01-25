@@ -3,6 +3,9 @@ from langchain_google_genai import GoogleGenerativeAI
 from langchain.prompts import PromptTemplate
 from langchain.chains.llm import LLMChain
 
+from moviepy.editor import ImageClip, TextClip, CompositeVideoClip, AudioFileClip
+from moviepy.config import change_settings
+
 from dotenv import load_dotenv
 from gtts import gTTS
 import os
@@ -20,6 +23,7 @@ IMAGE_HEIGHT = 768
 IMAGE_WIDTH = 1024
 GENERATIONS_DIR = "generations"
 
+change_settings({"IMAGEMAGICK_BINARY": "/usr/bin/convert"})
 
 llm = GoogleGenerativeAI(
     model="gemini-1.5-flash",
@@ -77,13 +81,13 @@ class Project:
 
 def create_scenes(project: Project, prompt_template):
     scenes_json_path = os.path.join(project.project_dir, "scenes.json")
-    
+
     # Check if scenes.json already exists
     if os.path.exists(scenes_json_path):
         try:
             with open(scenes_json_path, "r") as f:
                 scenes_data = json.load(f)
-            
+
             scenes = []
             for scene_data in scenes_data:
                 scene = Scene()
@@ -91,27 +95,27 @@ def create_scenes(project: Project, prompt_template):
                 scene.image_prompt = scene_data["image_prompt"]
                 scene.audio_text = scene_data["audio_text"]
                 scenes.append(scene)
-            
+
             project.scenes = scenes
             print(f"Loaded existing scenes from {scenes_json_path}")
             return  # Exit early since we loaded existing scenes
         except Exception as e:
             print(f"Error loading scenes.json: {e}. Generating new scenes.")
-    
+
     # Existing generation code if no scenes.json found
     chain = LLMChain(llm=llm, prompt=prompt_template)
-    
+
     try:
         response = chain.invoke({
             "name": project.name,
             "story": project.story
         })
-        
+
         raw_response = response['text'].strip()
-        
+
         if raw_response.startswith("```json"):
             raw_response = raw_response[7:-3].strip()
-        
+
         response_json = json.loads(raw_response)
         scenes_data = response_json.get("scenes", [])
 
@@ -122,12 +126,12 @@ def create_scenes(project: Project, prompt_template):
             scene.image_prompt = scene_data.get("image_prompt", "")
             scene.audio_text = scene_data.get("audio_text", "")
             scenes.append(scene)
-        
+
         # Update the project's scenes
         project.scenes = scenes
-        
+
         os.makedirs(project.project_dir, exist_ok=True)
-        scenes_json=[
+        scenes_json = [
             {
                 "index": scene.index,
                 "image_prompt": scene.image_prompt,
@@ -143,7 +147,7 @@ def create_scenes(project: Project, prompt_template):
             print(f"Scene {scene.index}:")
             print(f"Image prompt: {scene.image_prompt}")
             print(f"Audio text: {scene.audio_text}\n")
-            
+
     except json.JSONDecodeError as e:
         print(f"JSON Decode Error: {e}")
     except Exception as e:
@@ -173,7 +177,8 @@ def poll_for_completion(prediction_id: str) -> Optional[str]:
                     print(f"Prediction failed or was canceled: {prediction}")
                     return None
                 else:
-                    print(f"Prediction status: {status}. Polling again in 5 seconds...")
+                    print(f"Prediction status: {
+                          status}. Polling again in 5 seconds...")
                     time.sleep(5)
             else:
                 print(f"Error polling prediction: {response.status_code}")
@@ -253,11 +258,66 @@ def create_audio(project: Project):
             scene.audio_file = filepath
             print(f"Generated audio for scene {scene.index}")
         except Exception as e:
-            print(f"Error generating audio for scene {scene.index}: {str(e)}")  
+            print(f"Error generating audio for scene {scene.index}: {str(e)}")
 
 
-def image_to_video_with_captions_overlay_and_audio():
-    pass
+def create_scene_videos(project: Project):
+    videos_dir = os.path.join(project.project_dir, "videos")
+    os.makedirs(videos_dir, exist_ok=True)
+
+    for scene in project.scenes:
+        if not scene.image_file or not scene.audio_file:
+            print(f"Skipping video creation for scene {
+                  scene.index} - missing assets")
+            continue
+
+        try:
+            # Load assets
+            audio_clip = AudioFileClip(scene.audio_file)
+            image_clip = ImageClip(scene.image_file).set_duration(
+                audio_clip.duration)
+
+            # Create text overlay
+            text_clip = (
+                TextClip(
+                    scene.audio_text,
+                    fontsize=28,
+                    color="white",
+                    font="Arial-Bold",
+                    stroke_color="black",
+                    stroke_width=1,
+                )
+                .set_position(("center", "center"))
+                .set_duration(audio_clip.duration)
+            )
+
+            # Create composite video
+            final_clip = CompositeVideoClip([image_clip, text_clip])
+            final_clip = final_clip.set_audio(audio_clip)
+
+            # Write output
+            video_path = os.path.join(videos_dir, f"{scene.index}.mp4")
+            final_clip.write_videofile(
+                video_path,
+                fps=24,
+                codec="libx264",
+                audio_codec="aac",
+                threads=4,
+                logger=None,
+            )
+
+            print(f"Created video for scene {scene.index} at {video_path}")
+
+        except Exception as e:
+            print(f"Error creating video for scene {scene.index}: {str(e)}")
+        finally:
+            # Cleanup to prevent memory issues
+            if 'final_clip' in locals():
+                final_clip.close()
+            if 'audio_clip' in locals():
+                audio_clip.close()
+            if 'image_clip' in locals():
+                image_clip.close()
 
 
 def merge_video_scenes():
@@ -265,19 +325,23 @@ def merge_video_scenes():
 
 
 def main():
-    
+
     name = input("Enter the name of your story: ")
     story = input("Enter the story: ")
-    
+
     project = Project(name=name, story=story, scenes=[])
-    
+
     create_scenes(project, prompt_template)
     # for scene in project.scenes:
     #     print(scene.index, scene.image_prompt, scene.audio_text)
     # create_images(project)
     # create_audio(project)
+    # create_scene_videos(project)
 
 
 if __name__ == "__main__":
     os.makedirs(GENERATIONS_DIR, exist_ok=True)
     main()
+
+
+# pip install moviepy imagemagick
