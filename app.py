@@ -198,6 +198,14 @@ def create_images(project: Project):
         if not scene.image_prompt:
             continue
 
+        image_path = os.path.join(images_dir, f"{scene.index}.png")
+        
+        # Check if image already exists
+        if os.path.exists(image_path):
+            scene.image_file = image_path
+            print(f"Image for scene {scene.index} already exists. Skipping generation.")
+            continue
+
         body = {
             "version": REPLICATE_MODEL,
             "input": {
@@ -212,17 +220,16 @@ def create_images(project: Project):
         }
 
         try:
-            request = requests.post(
+            response = requests.post(
                 url=REPLICATE_API_URL,
                 headers=headers,
                 json=body
             )
             response.raise_for_status()
-            response = request.json()
-            prediction_id = response.get("id")
+            prediction = response.json()
+            prediction_id = prediction.get("id")
 
             if output_url := poll_for_completion(prediction_id):
-                image_path = os.path.join(images_dir, f"{scene.index}.png")
                 img_response = requests.get(output_url)
                 img_response.raise_for_status()
 
@@ -232,7 +239,7 @@ def create_images(project: Project):
                 scene.image_file = image_path
                 print(f"Generated image for scene {scene.index}")
             else:
-                print("No prediction ID found in the response.")
+                print(f"Failed to generate image for scene {scene.index}")
 
         except Exception as e:
             print(f"Error generating image for scene {scene.index}: {str(e)}")
