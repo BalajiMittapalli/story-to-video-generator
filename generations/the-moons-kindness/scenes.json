@@ -1,0 +1,23 @@
+[
+    {
+        "index": 1,
+        "image_prompt": "A vibrant Madhubani painting style depicts a sun, rendered in fiery oranges and reds, angrily hurling dark grey ash towards a large, serene moon, painted in cool blues and silvers.  The background features a stylized, lush green landscape with simplified, folk-art style trees and a village in the distance, using earthy tones and geometric patterns. The moon's face shows no dark spots yet.",
+        "audio_text": "Suruj, kaise gussa karis, chanda pe bhasm udai ke!",
+        "image_file": "generations\\the-moons-kindness\\images\\1.png",
+        "audio_file": "generations\\the-moons-kindness\\audio\\1.mp3"
+    },
+    {
+        "index": 2,
+        "image_prompt": "Warli-style tribal patterns adorn the scene.  Simple, white lines on a dark background depict a village plunged into darkness.  Small, stick-figure villagers stumble, their faces etched with worry.  The moon is hidden behind inky clouds, rendered with swirling black and deep indigo. A little girl, in traditional tribal attire, kneels, hands clasped in prayer, her silhouette stark against the darkness.",
+        "audio_text": "Andher ho gaya, chanda kahin nahin, log dar rahe hain.",
+        "image_file": "generations\\the-moons-kindness\\images\\2.png",
+        "audio_file": "generations\\the-moons-kindness\\audio\\2.mp3"
+    },
+    {
+        "index": 3,
+        "image_prompt": "The moon, now speckled with dark spots, but still radiating a soft, silvery glow, is depicted in a Pattachitra style.  Warm, earthy colors dominate the scene. The little girl from the previous scene is shown smiling, looking up at the moon. The village is once again bathed in soft moonlight, the villagers going about their work peacefully.  The style incorporates intricate details and bright, bold colors.",
+        "audio_text": "Chanda phir se aaya, uske daag bhi sundar hain, dekho!",
+        "image_file": "generations\\the-moons-kindness\\images\\3.png",
+        "audio_file": "generations\\the-moons-kindness\\audio\\3.mp3"
+    }
+]
