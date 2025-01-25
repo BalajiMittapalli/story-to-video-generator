@@ -3,7 +3,7 @@ from langchain_google_genai import GoogleGenerativeAI
 from langchain.prompts import PromptTemplate
 from langchain.chains.llm import LLMChain
 
-from moviepy.editor import ImageClip, TextClip, CompositeVideoClip, AudioFileClip
+from moviepy.editor import ImageClip, TextClip, CompositeVideoClip, AudioFileClip, VideoFileClip, concatenate_videoclips
 from moviepy.config import change_settings
 
 from dotenv import load_dotenv
@@ -204,11 +204,12 @@ def create_images(project: Project):
             continue
 
         image_path = os.path.join(images_dir, f"{scene.index}.png")
-        
+
         # Check if image already exists
         if os.path.exists(image_path):
             scene.image_file = image_path
-            print(f"Image for scene {scene.index} already exists. Skipping generation.")
+            print(f"Image for scene {
+                  scene.index} already exists. Skipping generation.")
             continue
 
         body = {
@@ -334,8 +335,49 @@ def create_scene_videos(project: Project):
                 image_clip.close()
 
 
-def merge_video_scenes():
-    pass
+def merge_video_scenes(project: Project):
+    videos_dir = os.path.join(project.project_dir, "videos")
+    output_path = os.path.join(project.project_dir, "final.mp4")
+
+    scene_files = sorted(
+        [f for f in os.listdir(videos_dir) if f.endswith(".mp4")],
+        key=lambda x: int(x.split(".")[0])
+    )
+
+    clips = []
+    for scene_file in scene_files:
+        try:
+            file_path = os.path.join(videos_dir, scene_file)
+            clip = VideoFileClip(file_path)
+            clips.append(clip)
+            print(f"Added {scene_file} to merge queue")
+        except Exception as e:
+            print(f"Error loading {scene_file}: {str(e)}")
+
+    if not clips:
+        print("No valid clips to merge")
+        return
+
+    try:
+        final_clip = concatenate_videoclips(clips, method="compose")
+
+        final_clip.write_videofile(
+            output_path,
+            fps=24,
+            codec="libx264",
+            audio_codec="aac",
+            threads=4,
+            logger=None
+        )
+        print(f"Final video created at {output_path}")
+
+    except Exception as e:
+        print(f"Error merging videos: {str(e)}")
+    finally:
+        for clip in clips:
+            clip.close()
+        if 'final_clip' in locals():
+            final_clip.close()
 
 
 def main():
