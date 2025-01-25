@@ -1,0 +1,52 @@
+[
+    {
+        "index": 1,
+        "image_prompt": "A boy asleep in bed, moonlight shining through window, peaceful scene",
+        "audio_text": "A boy slept soundly, dreaming of thirst."
+    },
+    {
+        "index": 2,
+        "image_prompt": "Boy getting out of bed, dark room, path to fridge visible",
+        "audio_text": "He woke, needing water, and tiptoed to the kitchen."
+    },
+    {
+        "index": 3,
+        "image_prompt": "Boy at fridge, something falling from above, surprised expression",
+        "audio_text": "Suddenly, something fell!  He jumped."
+    },
+    {
+        "index": 4,
+        "image_prompt": "Boy running back to bed, shadowy bedroom, sheets slightly disturbed",
+        "audio_text": "Back to bed, but something felt wrong..."
+    },
+    {
+        "index": 5,
+        "image_prompt": "Boy looking under his bed, dark and shadowy space under the bed",
+        "audio_text": "He checked under the bed, a shiver ran down his spine."
+    },
+    {
+        "index": 6,
+        "image_prompt": "Ghostly figure under the bed, dimly lit, eerie atmosphere",
+        "audio_text": "A ghostly figure loomed... terrifying!"
+    },
+    {
+        "index": 7,
+        "image_prompt": "Boy screaming, bed sheets tangled, dark room",
+        "audio_text": "He screamed, jolting awake!"
+    },
+    {
+        "index": 8,
+        "image_prompt": "Boy sitting up in bed, breathing heavily, sweat on his forehead, moonlight through window",
+        "audio_text": "Just a dream... just a dream."
+    },
+    {
+        "index": 9,
+        "image_prompt": "Boy looking around his room, now brightly lit, peaceful expression",
+        "audio_text": "He calmed down, the fear subsided."
+    },
+    {
+        "index": 10,
+        "image_prompt": "Boy snuggling back into bed, peaceful sleep, soft light",
+        "audio_text": "Safe and sound, back to sleep."
+    }
+]
