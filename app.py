@@ -1,9 +1,14 @@
+# Create an AI tool that transforms regional folk stories into animated short
+# films with visuals and regional voiceovers, preserving local dialects, local art styles and cultural nuances.
+
 from typing import List, Optional
 from langchain_google_genai import GoogleGenerativeAI
 from langchain.prompts import PromptTemplate
 from langchain.chains.llm import LLMChain
 
-from moviepy import ImageClip, CompositeVideoClip, AudioFileClip, VideoFileClip, concatenate_videoclips
+from moviepy import ImageClip, CompositeVideoClip, VideoFileClip, concatenate_videoclips
+from moviepy.audio.io.AudioFileClip import AudioFileClip
+from moviepy.audio.AudioClip import concatenate_audioclips
 
 from dotenv import load_dotenv
 from gtts import gTTS
@@ -16,7 +21,8 @@ load_dotenv()
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 REPLICATE_API_KEY = os.getenv("REPLICATE_API_KEY")
-REPLICATE_API_URL = "https://api.replicate.com/v1/predictions"
+REPLICATE_API_URL = "https://api.replicate.com/v1/predictions"  # replicate api endpoint
+# this is not api key, this is model id, dont waste ur time testing it
 REPLICATE_MODEL = "ac732df83cea7fff18b8472768c88ad041fa750ff7682a21affe81863cbe77e4"
 GEMINI_MODEL = "gemini-1.5-flash"
 IMAGE_HEIGHT = 768
@@ -29,6 +35,7 @@ llm = GoogleGenerativeAI(
     api_key=GEMINI_API_KEY,
     temperature=0.5,
 )
+
 
 prompt_template = PromptTemplate(
     input_variables=["name", "story"],
@@ -341,80 +348,164 @@ def create_audio(project: Project):
 
 
 def create_scene_videos(project: Project):
+    """Create silent videos with duration matching audio files"""
     videos_dir = os.path.join(project.project_dir, "videos")
     os.makedirs(videos_dir, exist_ok=True)
 
     for scene in project.scenes:
         if not scene.image_file or not scene.audio_file:
-            print(f"Skipping video creation for scene {scene.index} - missing assets")
+            print(f"Skipping video creation for scene {
+                  scene.index} - missing assets")
             continue
 
+        image_clip = None
+        audio_clip = None
+        video_clip = None
+
         try:
+            # Load audio to get duration
             audio_clip = AudioFileClip(scene.audio_file)
-            image_clip = ImageClip(scene.image_file).duration(audio_clip.duration)
 
-            video_clip = image_clip.set_audio(audio_clip)
+            # Create image clip with audio duration
+            image_clip = ImageClip(scene.image_file).with_duration(
+                audio_clip.duration)
 
-            # Define the output path for the video
+            # Create silent video clip
+            video_clip = CompositeVideoClip(
+                [image_clip.with_position('center')],
+                size=image_clip.size
+            ).with_duration(audio_clip.duration)
+
+            # Write video without audio
             video_path = os.path.join(videos_dir, f"{scene.index}.mp4")
+            video_clip.write_videofile(
+                video_path,
+                fps=24,
+                codec="libx264",
+                threads=4,
+                preset='medium',
+                ffmpeg_params=[
+                    '-crf', '18',
+                    '-pix_fmt', 'yuv420p',
+                    '-movflags', '+faststart'
+                ]
+            )
 
-            video_clip.duration = audio_clip.duration
-            
-            video_clip.fps = 1
-            
-            video_clip.write_videofile(video_path)
-        
-            print(f"Created video for scene {scene.index} at {video_path}")
+            print(f"Created silent video for scene {scene.index}")
 
         except Exception as e:
             print(f"Error creating video for scene {scene.index}: {str(e)}")
 
+        finally:
+            if video_clip:
+                video_clip.close()
+            if image_clip:
+                image_clip.close()
+            if audio_clip:
+                audio_clip.close()
 
+
+def merge_audio_files(project: Project) -> str:
+    audio_dir = os.path.join(project.project_dir, "audio")
+    output_path = os.path.join(project.project_dir, "merged_audio.wav")
+
+    # Get sorted audio files by scene index
+    audio_files = sorted([
+        (scene.index, scene.audio_file) 
+        for scene in project.scenes 
+        if scene.audio_file and os.path.exists(scene.audio_file)
+    ], key=lambda x: x[0])
+
+    if not audio_files:
+        raise ValueError("No valid audio files found to merge")
+
+    audio_clips = []
+    total_duration = 0.0
+    try:
+        # Load and verify all audio clips
+        for index, audio_file in audio_files:
+            clip = AudioFileClip(audio_file)
+            if clip.fps != 44100:
+                clip = clip.with_fps(44100)
+            audio_clips.append(clip)
+            total_duration += clip.duration
+            print(f"Scene {index}: {clip.duration:.2f}s")
+
+        # Concatenate with 0.5s crossfade between clips
+        final_audio = concatenate_audioclips(audio_clips)
+        final_duration = final_audio.duration
+        
+        print(f"Original duration: {total_duration:.2f}s")
+        print(f"Merged duration: {final_duration:.2f}s (with crossfades)")
+
+        # Write final audio
+        final_audio.write_audiofile(
+            output_path,
+            fps=44100,
+            codec='pcm_s16le',
+            verbose=False
+        )
+        return output_path
+
+    finally:
+        for clip in audio_clips:
+            clip.close()
+        if 'final_audio' in locals():
+            final_audio.close()
 
 def merge_video_scenes(project: Project):
     videos_dir = os.path.join(project.project_dir, "videos")
     output_path = os.path.join(project.project_dir, "final.mp4")
 
+    # Load video clips
     scene_files = sorted(
         [f for f in os.listdir(videos_dir) if f.endswith(".mp4")],
         key=lambda x: int(x.split(".")[0])
     )
-
-    clips = []
-    for scene_file in scene_files:
-        try:
-            file_path = os.path.join(videos_dir, scene_file)
-            clip = VideoFileClip(file_path)
-            clips.append(clip)
-            print(f"Added {scene_file} to merge queue")
-        except Exception as e:
-            print(f"Error loading {scene_file}: {str(e)}")
-
-    if not clips:
-        print("No valid clips to merge")
-        return
-
+    
+    clips = [VideoFileClip(os.path.join(videos_dir, f)) for f in scene_files]
+    video_duration = sum(clip.duration for clip in clips)
+    
     try:
-        final_clip = concatenate_videoclips(clips, method="compose")
+        # Merge videos
+        final_video = concatenate_videoclips(clips, method="compose")
+        print(f"Video duration: {final_video.duration:.2f}s")
 
-        final_clip.write_videofile(
+        # Merge audio
+        merged_audio_path = merge_audio_files(project)
+        final_audio = AudioFileClip(merged_audio_path)
+        print(f"Audio duration: {final_audio.duration:.2f}s")
+
+        # Synchronize durations
+        duration_diff = final_video.duration - final_audio.duration
+        if abs(duration_diff) > 0.1:
+            print(f"Adjusting video duration by {duration_diff:.2f}s")
+            final_video = final_video.with_duration(final_audio.duration)
+
+        # Combine audio and video
+        final_video = final_video.with_audio(final_audio)
+        
+        # Write final file
+        final_video.write_videofile(
             output_path,
             fps=24,
             codec="libx264",
             audio_codec="aac",
+            audio_bitrate="192k",
             threads=4,
             logger=None
         )
-        print(f"Final video created at {output_path}")
+        print(f"Final video created: {output_path}")
 
-    except Exception as e:
-        print(f"Error merging videos: {str(e)}")
     finally:
         for clip in clips:
             clip.close()
-        if 'final_clip' in locals():
-            final_clip.close()
-
+        if 'final_video' in locals():
+            final_video.close()
+        if 'final_audio' in locals():
+            final_audio.close()
+        if os.path.exists(merged_audio_path):
+            os.remove(merged_audio_path)
 
 def main():
     name = input("Enter the name of your story: ")
@@ -426,7 +517,7 @@ def main():
     # create_images(project)
     # create_audio(project)
     create_scene_videos(project)
-    # merge_video_scenes(project)
+    merge_video_scenes(project)
 
 
 if __name__ == "__main__":
