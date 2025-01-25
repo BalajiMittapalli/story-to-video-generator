@@ -215,8 +215,7 @@ def poll_for_completion(prediction_id: str) -> Optional[str]:
                     print(f"Prediction failed or was canceled: {prediction}")
                     return None
                 else:
-                    print(f"Prediction status: {
-                          status}. Polling again in 5 seconds...")
+                    print(f"Prediction status: {status}. Polling again in 5 seconds...")
                     time.sleep(5)
             else:
                 print(f"Error polling prediction: {response.status_code}")
@@ -245,8 +244,7 @@ def create_images(project: Project):
 
         if os.path.exists(image_path):
             scene.image_file = image_path
-            print(f"Image for scene {
-                  scene.index} already exists. Skipping generation.")
+            print(f"Image for scene {scene.index} already exists. Skipping generation.")
             continue
 
         body = {
@@ -317,8 +315,7 @@ def create_audio(project: Project):
 
         if os.path.exists(audio_path):
             scene.audio_file = audio_path
-            print(f"Audio for scene {
-                  scene.index} already exists. Skipping generation.")
+            print(f"Audio for scene {scene.index} already exists. Skipping generation.")
             continue
 
         try:
@@ -354,8 +351,7 @@ def create_scene_videos(project: Project):
 
     for scene in project.scenes:
         if not scene.image_file or not scene.audio_file:
-            print(f"Skipping video creation for scene {
-                  scene.index} - missing assets")
+            print(f"Skipping video creation for scene {scene.index} - missing assets")
             continue
 
         image_clip = None
