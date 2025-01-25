@@ -258,11 +258,18 @@ def create_audio(project: Project):
         if not scene.audio_text:
             continue
 
+        audio_path = os.path.join(audio_dir, f"{scene.index}.mp3")
+        
+        # Check for existing audio file
+        if os.path.exists(audio_path):
+            scene.audio_file = audio_path
+            print(f"Audio for scene {scene.index} already exists. Skipping generation.")
+            continue
+
         try:
-            filepath = os.path.join(audio_dir, f"{scene.index}.mp3")
             tts = gTTS(text=scene.audio_text, lang='en', slow=False)
-            tts.save(filepath)
-            scene.audio_file = filepath
+            tts.save(audio_path)
+            scene.audio_file = audio_path
             print(f"Generated audio for scene {scene.index}")
         except Exception as e:
             print(f"Error generating audio for scene {scene.index}: {str(e)}")
