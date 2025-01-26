@@ -1,0 +1,51 @@
+[
+    {
+        "index": 1,
+        "image_prompt": "Madhubani-style illustration. Vibrant colours, depicting the Sun and Moon as anthropomorphic figures. The Sun is depicted with angry facial expression, throwing dark ash towards a bright, full Moon. Background shows a lush green landscape with stylized trees and rolling hills.  The Sun is wearing traditional Rajasthani attire, the Moon in simple white clothing.",
+        "audio_text": "\u0c38\u0c42\u0c30\u0c4d\u0c2f\u0c41\u0c21\u0c41 \u0c15\u0c4b\u0c2a\u0c02\u0c17\u0c3e \u0c09\u0c28\u0c4d\u0c28\u0c3e\u0c21\u0c41, \u0c1a\u0c02\u0c26\u0c2e\u0c3e\u0c2e \u0c2e\u0c40\u0c26 \u0c2c\u0c42\u0c21\u0c3f\u0c26 \u0c35\u0c3f\u0c38\u0c3f\u0c30\u0c3e\u0c21\u0c41 (s\u016bryu\u1e0du k\u014dp\u0101\u1e45g\u0101 unn\u0101\u1e0du, chandamama m\u012bda b\u016b\u1e0dida visir\u0101\u1e0du)",
+        "image_file": "generations\\the-moon-kindness\\images\\1.png",
+        "audio_file": "generations\\the-moon-kindness\\audio\\1.mp3"
+    },
+    {
+        "index": 2,
+        "image_prompt": "Warli tribal art with white-on-red motifs.  A large, partially obscured moon is the central figure, its face showing sadness.  Small, simple figures of villagers are shown stumbling in darkness.  The background is a dark night sky with minimal detail, emphasizing the lack of moonlight.",
+        "audio_text": "\u0c1a\u0c02\u0c26\u0c2e\u0c3e\u0c2e \u0c26\u0c3e\u0c17\u0c3f\u0c2a\u0c4b\u0c2f\u0c3f\u0c02\u0c26\u0c3f, \u0c1a\u0c40\u0c15\u0c1f\u0c3f \u0c2a\u0c21\u0c3f\u0c02\u0c26\u0c3f (chandamama d\u0101gipoyindi, c\u012bka\u1e6di pa\u1e0dindi)",
+        "image_file": "generations\\the-moon-kindness\\images\\2.png",
+        "audio_file": "generations\\the-moon-kindness\\audio\\2.mp3"
+    },
+    {
+        "index": 3,
+        "image_prompt": "Pattachitra style painting.  A little girl, dressed in simple cotton clothes, is shown praying with hands clasped, looking up at a dark sky.  The background features a stylized village scene with houses and trees, painted in traditional Odisha colours.",
+        "audio_text": "\u0c1a\u0c3f\u0c28\u0c4d\u0c28\u0c3e\u0c30\u0c3f \u0c2a\u0c4d\u0c30\u0c3e\u0c30\u0c4d\u0c25\u0c28 \u0c1a\u0c47\u0c38\u0c3f\u0c02\u0c26\u0c3f, \u0c1a\u0c02\u0c26\u0c2e\u0c3e\u0c2e \u0c15\u0c4b\u0c38\u0c02 (cinn\u0101ri pr\u0101rthan\u0101 c\u0113sindi, chandamama k\u014dsam)",
+        "image_file": "generations\\the-moon-kindness\\images\\3.png",
+        "audio_file": "generations\\the-moon-kindness\\audio\\3.mp3"
+    },
+    {
+        "index": 4,
+        "image_prompt": "Madhubani style, but with a softer colour palette. The moon, now showing dark spots, is depicted gently shining its light on a village scene. Villagers are shown working in fields under the soft moonlight.  The style emphasizes peace and serenity.",
+        "audio_text": "\u0c1a\u0c02\u0c26\u0c2e\u0c3e\u0c2e \u0c24\u0c3f\u0c30\u0c3f\u0c17\u0c3f \u0c35\u0c1a\u0c4d\u0c1a\u0c3f\u0c02\u0c26\u0c3f, \u0c15\u0c4d\u0c37\u0c2e\u0c3f\u0c02\u0c1a\u0c02\u0c21\u0c3f (chandamama tirigini vacchindi, kshaminchandi)",
+        "image_file": "generations\\the-moon-kindness\\images\\4.png",
+        "audio_file": "generations\\the-moon-kindness\\audio\\4.mp3"
+    },
+    {
+        "index": 5,
+        "image_prompt": "Warli art style.  Farmers are shown happily harvesting crops under the gentle moonlight.  The moon is depicted with its spots, but it is radiating a soft, warm glow.  The scene emphasizes joy and abundance.",
+        "audio_text": "\u0c2a\u0c02\u0c1f\u0c32\u0c41 \u0c2a\u0c02\u0c21\u0c3f, \u0c38\u0c02\u0c24\u0c4b\u0c37\u0c02 \u0c09\u0c02\u0c26\u0c3f (pa\u1e47\u1e6dalu pa\u1e47\u1e0di, santo\u1e63a\u1e41 undi)",
+        "image_file": "generations\\the-moon-kindness\\images\\5.png",
+        "audio_file": "generations\\the-moon-kindness\\audio\\5.mp3"
+    },
+    {
+        "index": 6,
+        "image_prompt": "A combination of styles \u2013 the central focus is the moon, depicted in a realistic style with its dark spots prominently featured, surrounded by a frame in the style of Tanjore painting with gold leaf accents.  Children are playing joyfully under the moonlight.",
+        "audio_text": "\u0c05\u0c02\u0c26\u0c30\u0c42 \u0c38\u0c02\u0c24\u0c4b\u0c37\u0c02\u0c17\u0c3e \u0c09\u0c28\u0c4d\u0c28\u0c3e\u0c30\u0c41 (andar\u016b santo\u1e63a\u1e45g\u0101 unn\u0101ru)",
+        "image_file": "generations\\the-moon-kindness\\images\\6.png",
+        "audio_file": "generations\\the-moon-kindness\\audio\\6.mp3"
+    },
+    {
+        "index": 7,
+        "image_prompt": "Madhubani style. The moon is depicted as a benevolent figure, surrounded by stars and floral motifs. The overall tone is one of peace and acceptance.  A small text in Telugu is included, stating: \u201c\u0c05\u0c2a\u0c42\u0c30\u0c4d\u0c23\u0c24\u0c32\u0c41 \u0c2e\u0c28\u0c32\u0c4d\u0c28\u0c3f \u0c2a\u0c4d\u0c30\u0c24\u0c4d\u0c2f\u0c47\u0c15\u0c02\u0c17\u0c3e \u0c1a\u0c47\u0c38\u0c4d\u0c24\u0c3e\u0c2f\u0c3f\u201d (ap\u016br\u1e47atulu manalni praty\u0113ka\u1e45g\u0101 ch\u0113st\u0101yi) \u2013 Imperfections make us special.",
+        "audio_text": "\u0c05\u0c02\u0c26\u0c30\u0c42 \u0c2a\u0c4d\u0c30\u0c47\u0c2e\u0c24\u0c4b \u0c09\u0c28\u0c4d\u0c28\u0c3e\u0c30\u0c41 (andar\u016b pr\u0113mat\u014d unn\u0101ru)",
+        "image_file": "generations\\the-moon-kindness\\images\\7.png",
+        "audio_file": "generations\\the-moon-kindness\\audio\\7.mp3"
+    }
+]

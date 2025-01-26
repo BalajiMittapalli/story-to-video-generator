@@ -48,7 +48,7 @@ prompt_template = PromptTemplate(
     3. Cultural nuances and historical context
 
     Structure requirements:
-    - Maximum 3 scenes
+    - Maximum 7 scenes
     - Each scene contains:
       * image_prompt: Visual description including:
         - Specific Indian art style reference
@@ -56,7 +56,7 @@ prompt_template = PromptTemplate(
         - Regional architecture/landscapes
         - Cultural symbols/motifs
         - Character actions/emotions
-      * audio_text: Dialogue/narration in regional language (12-18 words) with local idioms
+      * audio_text: Dialogue/narration in regional language (10-12 words) with local idioms
     - Image and audio text should correspond to create a cohesive narrative in generated scenes.
 
     Image Prompt Guidelines:
@@ -69,6 +69,8 @@ prompt_template = PromptTemplate(
     - Use regional linguistic features: Tamil honorifics, Bengali alliteration
     - Maintain oral storytelling rhythm
     - Include traditional song/stanza where appropriate
+    - Generate the audio text in only 1 language: Telugu (te) or Hindi (hi) as string
+    - Generate the audio text of selected language in English. 
 
     Output: JSON object with scenes array containing image_prompt and audio_text.
     Ensure valid JSON format parseable by Python's json.loads().
@@ -550,9 +552,9 @@ def main():
 
     project = get_project(name, story, language)
 
-    create_scenes(project, prompt_template)
+    # create_scenes(project, prompt_template)
     create_images(project)
-    create_audio(project)
+    # create_audio(project)
     create_scene_videos(project)
     create_final_scenes(project)
     merge_final_scenes(project)
