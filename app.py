@@ -8,7 +8,8 @@ from langchain.chains.llm import LLMChain
 
 from moviepy import ImageClip, CompositeVideoClip, VideoFileClip, concatenate_videoclips
 from moviepy.audio.io.AudioFileClip import AudioFileClip
-from moviepy.audio.AudioClip import concatenate_audioclips
+from moviepy.video.compositing.CompositeVideoClip import CompositeVideoClip
+from moviepy.video.fx import Resize
 
 from dotenv import load_dotenv
 from gtts import gTTS
@@ -20,11 +21,11 @@ import time
 load_dotenv()
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-REPLICATE_API_KEY = os.getenv("REPLICATE_API_KEY")
-REPLICATE_API_URL = "https://api.replicate.com/v1/predictions"  # replicate api endpoint
-# this is not api key, this is model id, dont waste ur time testing it
-REPLICATE_MODEL = "ac732df83cea7fff18b8472768c88ad041fa750ff7682a21affe81863cbe77e4"
 GEMINI_MODEL = "gemini-1.5-flash"
+REPLICATE_API_KEY = os.getenv("REPLICATE_API_KEY")
+REPLICATE_API_URL = "https://api.replicate.com/v1/predictions"  # api endpoint
+# model id - stable diffusion
+REPLICATE_MODEL = "ac732df83cea7fff18b8472768c88ad041fa750ff7682a21affe81863cbe77e4"
 IMAGE_HEIGHT = 768
 IMAGE_WIDTH = 1024
 GENERATIONS_DIR = "generations"
@@ -38,30 +39,36 @@ llm = GoogleGenerativeAI(
 
 
 prompt_template = PromptTemplate(
-    input_variables=["name", "story"],
+    input_variables=["name", "story", "language"],
     template="""
-    You are a cultural preservation specialist creating animated short films from regional folk stories. 
+    You are a cultural preservation specialist creating animated short films from Indian regional folk stories. 
     Generate video scenes that maintain:
     1. Authentic local dialects in voiceovers
-    2. Traditional art styles in visuals
+    2. Traditional Indian art styles (Warli, Madhubani, Pattachitra, etc.)
     3. Cultural nuances and historical context
 
     Structure requirements:
     - Maximum 3 scenes
     - Each scene contains:
-      * image_prompt: Visual description incorporating regional art elements (traditional clothing, architecture, natural landscapes)
-      * audio_text: Dialogue/narration in regional dialect (10-15 words) preserving local idioms and speech patterns
+      * image_prompt: Visual description including:
+        - Specific Indian art style reference
+        - Traditional clothing and jewelry
+        - Regional architecture/landscapes
+        - Cultural symbols/motifs
+        - Character actions/emotions
+      * audio_text: Dialogue/narration in regional language (12-18 words) with local idioms
+    - Image and audio text should correspond to create a cohesive narrative in generated scenes.
 
-    Guidelines:
-    1. Image Prompts Should:
-    - Reference specific regional art characteristics (e.g., "Warli-style tribal patterns", "Madhubani folk art elements")
-    - Include culturally significant colors, textures, and motifs
-    - Depict traditional settings and historical accuracy
+    Image Prompt Guidelines:
+    - Specify art style: "Warli tribal art with white-on-red motifs", "Madhubani-style figures with intricate floral borders"
+    - Include cultural elements: "Nataraja sculpture in background", "Women in Kanjeevaram sarees performing Kolattam"
+    - Add movement cues: "Villagers dancing in circle", "Farmer ploughing field at sunrise"
+    - Use regional color palettes: "Tanjore painting gold leaf accents", "Rajasthani fresco colors"
 
-    2. Audio Text Must:
-    - Use authentic regional vocabulary and sentence structures
-    - Preserve oral storytelling traditions
-    - Maintain natural flow between scenes
+    Audio Guidelines:
+    - Use regional linguistic features: Tamil honorifics, Bengali alliteration
+    - Maintain oral storytelling rhythm
+    - Include traditional song/stanza where appropriate
 
     Output: JSON object with scenes array containing image_prompt and audio_text.
     Ensure valid JSON format parseable by Python's json.loads().
@@ -69,6 +76,7 @@ prompt_template = PromptTemplate(
 
     Story Name: {name}
     Folk Story Content: {story}
+    Language: {language}
     Answer:"""
 )
 
@@ -83,9 +91,10 @@ class Scene:
 
 
 class Project:
-    def __init__(self, name: str, story: str, scenes: List[Scene]):
+    def __init__(self, name: str, story: str, language: str, scenes: List[Scene]):
         self.name = name
         self.story = story
+        self.language = language
         self.scenes = scenes
 
     @property
@@ -93,14 +102,14 @@ class Project:
         return os.path.join(GENERATIONS_DIR, self.name.replace(" ", "-"))
 
 
-def get_project(name: str, story: str) -> Project:
+def get_project(name: str, story: str, language: str) -> Project:
     project_dir = os.path.join(GENERATIONS_DIR, name.replace(" ", "-"))
     scenes_json_path = os.path.join(project_dir, "scenes.json")
 
     if not os.path.exists(scenes_json_path):
         os.makedirs(project_dir, exist_ok=True)
         print(f"Created new project directory: {project_dir}")
-        return Project(name=name, story=story, scenes=[])
+        return Project(name=name, story=story, language=language, scenes=[])
 
     with open(scenes_json_path, "r") as f:
         scenes_data = json.load(f)
@@ -115,7 +124,7 @@ def get_project(name: str, story: str) -> Project:
         scene.audio_file = scene_data.get("audio_file")
         scenes.append(scene)
 
-    return Project(name=name, story=story, scenes=scenes)
+    return Project(name=name, story=story, language=language, scenes=scenes)
 
 
 def create_scenes(project: Project, prompt_template):
@@ -147,7 +156,8 @@ def create_scenes(project: Project, prompt_template):
     try:
         response = chain.invoke({
             "name": project.name,
-            "story": project.story
+            "story": project.story,
+            "language": project.language
         })
 
         raw_response = response['text'].strip()
@@ -215,7 +225,8 @@ def poll_for_completion(prediction_id: str) -> Optional[str]:
                     print(f"Prediction failed or was canceled: {prediction}")
                     return None
                 else:
-                    print(f"Prediction status: {status}. Polling again in 5 seconds...")
+                    print(f"Prediction status: {
+                          status}. Polling again in 5 seconds...")
                     time.sleep(5)
             else:
                 print(f"Error polling prediction: {response.status_code}")
@@ -244,7 +255,8 @@ def create_images(project: Project):
 
         if os.path.exists(image_path):
             scene.image_file = image_path
-            print(f"Image for scene {scene.index} already exists. Skipping generation.")
+            print(f"Image for scene {
+                  scene.index} already exists. Skipping generation.")
             continue
 
         body = {
@@ -306,10 +318,11 @@ def create_images(project: Project):
 def create_audio(project: Project):
     audio_dir = os.path.join(project.project_dir, "audio")
     os.makedirs(audio_dir, exist_ok=True)
-    combined_text = " ".join(scene.audio_text for scene in project.scenes if scene.audio_text)
+    combined_text = " ".join(
+        scene.audio_text for scene in project.scenes if scene.audio_text)
     combined_audio_path = os.path.join(audio_dir, "combined.mp3")
     try:
-        tts = gTTS(text=combined_text, lang='hi', slow=False)
+        tts = gTTS(text=combined_text, lang=project.language, slow=False)
         tts.save(combined_audio_path)
         print("Generated combined audio for all scenes.")
     except Exception as e:
@@ -322,11 +335,12 @@ def create_audio(project: Project):
 
         if os.path.exists(audio_path):
             scene.audio_file = audio_path
-            print(f"Audio for scene {scene.index} already exists. Skipping generation.")
+            print(f"Audio for scene {
+                  scene.index} already exists. Skipping generation.")
             continue
 
         try:
-            tts = gTTS(text=scene.audio_text, lang='hi', slow=False)
+            tts = gTTS(text=scene.audio_text, lang=project.language, slow=False)
             tts.save(audio_path)
             scene.audio_file = audio_path
             print(f"Generated audio for scene {scene.index}")
@@ -352,39 +366,47 @@ def create_audio(project: Project):
 
 
 def create_scene_videos(project: Project):
-    """Create silent videos with duration matching audio files"""
     videos_dir = os.path.join(project.project_dir, "videos")
     os.makedirs(videos_dir, exist_ok=True)
 
     for scene in project.scenes:
         if not scene.image_file or not scene.audio_file:
-            print(f"Skipping video creation for scene {scene.index} - missing assets")
+            print(f"Skipping video creation for scene {
+                  scene.index} - missing assets")
             continue
 
-        image_clip = None
-        audio_clip = None
-        video_clip = None
-
         try:
-            # Load audio to get duration
             audio_clip = AudioFileClip(scene.audio_file)
+            audio_duration = audio_clip.duration
+            audio_clip.close()
 
-            # Create image clip with audio duration
-            image_clip = ImageClip(scene.image_file).with_duration(
-                audio_clip.duration)
+            def zoom_factor(t):
+                return 1.0 + (t / audio_duration) * 0.2 
 
-            # Create silent video clip
+            img_clip = ImageClip(
+                scene.image_file).with_duration(audio_duration)
+
+            final_clip = (
+                img_clip
+                .with_effects([
+                    Resize(new_size=lambda t: (
+                        int(img_clip.w * zoom_factor(t)),
+                        int(img_clip.h * zoom_factor(t))
+                    ))
+                ])
+            )
+
             video_clip = CompositeVideoClip(
-                [image_clip.with_position('center')],
-                size=image_clip.size
-            ).with_duration(audio_clip.duration)
+                [final_clip],
+                size=(IMAGE_WIDTH, IMAGE_HEIGHT)
+            ).with_duration(audio_duration)
 
-            # Write video without audio
             video_path = os.path.join(videos_dir, f"{scene.index}.mp4")
             video_clip.write_videofile(
                 video_path,
                 fps=24,
                 codec="libx264",
+                audio_codec="aac",
                 threads=4,
                 preset='medium',
                 ffmpeg_params=[
@@ -394,19 +416,15 @@ def create_scene_videos(project: Project):
                 ]
             )
 
-            print(f"Created silent video for scene {scene.index}")
+            print(f"Created dynamic video for scene {scene.index}")
 
         except Exception as e:
             print(f"Error creating video for scene {scene.index}: {str(e)}")
-
         finally:
-            if video_clip:
+            if 'img_clip' in locals():
+                img_clip.close()
+            if 'video_clip' in locals():
                 video_clip.close()
-            if image_clip:
-                image_clip.close()
-            if audio_clip:
-                audio_clip.close()
-
 
 
 def create_final_scenes(project: Project):
@@ -425,8 +443,10 @@ def create_final_scenes(project: Project):
                 continue
 
             # Path setup
-            scene_video_path = os.path.join(scene_videos_dir, f"{scene.index}.mp4")
-            final_scene_path = os.path.join(final_scenes_dir, f"{scene.index}.mp4")
+            scene_video_path = os.path.join(
+                scene_videos_dir, f"{scene.index}.mp4")
+            final_scene_path = os.path.join(
+                final_scenes_dir, f"{scene.index}.mp4")
 
             if os.path.exists(final_scene_path):
                 print(f"Final scene {scene.index} already exists. Skipping.")
@@ -439,7 +459,8 @@ def create_final_scenes(project: Project):
             try:
                 # Synchronize durations
                 if abs(video_clip.duration - audio_clip.duration) > 0.1:
-                    print(f"Adjusting scene {scene.index} duration (V: {video_clip.duration:.2f}s, A: {audio_clip.duration:.2f}s)")
+                    print(f"Adjusting scene {scene.index} duration (V: {
+                          video_clip.duration:.2f}s, A: {audio_clip.duration:.2f}s)")
                     video_clip = video_clip.subclip(0, audio_clip.duration)
 
                 # Combine audio and video
@@ -470,11 +491,12 @@ def create_final_scenes(project: Project):
         print(f"Failed to create final scenes: {str(e)}")
         raise
 
+
 def merge_final_scenes(project: Project):
     """Merge all final scene videos into complete film"""
     try:
         final_scenes_dir = os.path.join(project.project_dir, "final_scenes")
-        output_path = os.path.join(project.project_dir, "final_film.mp4")
+        output_path = os.path.join(project.project_dir, "final.mp4")
 
         # Get sorted final scenes
         scene_files = sorted(
@@ -486,7 +508,8 @@ def merge_final_scenes(project: Project):
             raise ValueError("No final scene videos found to merge")
 
         # Load and concatenate scenes
-        clips = [VideoFileClip(os.path.join(final_scenes_dir, f)) for f in scene_files]
+        clips = [VideoFileClip(os.path.join(final_scenes_dir, f))
+                 for f in scene_files]
         final_film = concatenate_videoclips(clips, method="compose")
 
         # Write final output
@@ -519,11 +542,16 @@ def merge_final_scenes(project: Project):
 def main():
     name = input("Enter the name of your story: ")
     story = input("Enter the story: ")
+    language = input("Enter the language (te for Telugu, hi for Hindi): ")
 
-    project = get_project(name, story)
+    if language not in ["te", "hi"]:
+        print("Invalid language selection. Please choose 'te' for Telugu or 'hi' for Hindi.")
+        return
+
+    project = get_project(name, story, language)
 
     create_scenes(project, prompt_template)
-    # create_images(project)
+    create_images(project)
     create_audio(project)
     create_scene_videos(project)
     create_final_scenes(project)
