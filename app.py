@@ -20,11 +20,11 @@ import time
 load_dotenv()
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-REPLICATE_API_KEY = os.getenv("REPLICATE_API_KEY")
-REPLICATE_API_URL = "https://api.replicate.com/v1/predictions"  # replicate api endpoint
-# this is not api key, this is model id, dont waste ur time testing it
-REPLICATE_MODEL = "ac732df83cea7fff18b8472768c88ad041fa750ff7682a21affe81863cbe77e4"
 GEMINI_MODEL = "gemini-1.5-flash"
+REPLICATE_API_KEY = os.getenv("REPLICATE_API_KEY")
+REPLICATE_API_URL = "https://api.replicate.com/v1/predictions"  # api endpoint
+# model id - stable diffusion
+REPLICATE_MODEL = "ac732df83cea7fff18b8472768c88ad041fa750ff7682a21affe81863cbe77e4"
 IMAGE_HEIGHT = 768
 IMAGE_WIDTH = 1024
 GENERATIONS_DIR = "generations"
@@ -40,28 +40,34 @@ llm = GoogleGenerativeAI(
 prompt_template = PromptTemplate(
     input_variables=["name", "story"],
     template="""
-    You are a cultural preservation specialist creating animated short films from regional folk stories. 
+    You are a cultural preservation specialist creating animated short films from Indian regional folk stories. 
     Generate video scenes that maintain:
     1. Authentic local dialects in voiceovers
-    2. Traditional art styles in visuals
+    2. Traditional Indian art styles (Warli, Madhubani, Pattachitra, etc.)
     3. Cultural nuances and historical context
 
     Structure requirements:
     - Maximum 3 scenes
     - Each scene contains:
-      * image_prompt: Visual description incorporating regional art elements (traditional clothing, architecture, natural landscapes)
-      * audio_text: Dialogue/narration in regional dialect (10-15 words) preserving local idioms and speech patterns
+      * image_prompt: Visual description including:
+        - Specific Indian art style reference
+        - Traditional clothing and jewelry
+        - Regional architecture/landscapes
+        - Cultural symbols/motifs
+        - Character actions/emotions
+      * audio_text: Dialogue/narration in regional language (12-18 words) with local idioms
+    - Image and audio text should correspond to create a cohesive narrative in generated scenes.
 
-    Guidelines:
-    1. Image Prompts Should:
-    - Reference specific regional art characteristics (e.g., "Warli-style tribal patterns", "Madhubani folk art elements")
-    - Include culturally significant colors, textures, and motifs
-    - Depict traditional settings and historical accuracy
+    Image Prompt Guidelines:
+    - Specify art style: "Warli tribal art with white-on-red motifs", "Madhubani-style figures with intricate floral borders"
+    - Include cultural elements: "Nataraja sculpture in background", "Women in Kanjeevaram sarees performing Kolattam"
+    - Add movement cues: "Villagers dancing in circle", "Farmer ploughing field at sunrise"
+    - Use regional color palettes: "Tanjore painting gold leaf accents", "Rajasthani fresco colors"
 
-    2. Audio Text Must:
-    - Use authentic regional vocabulary and sentence structures
-    - Preserve oral storytelling traditions
-    - Maintain natural flow between scenes
+    Audio Guidelines:
+    - Use regional linguistic features: Tamil honorifics, Bengali alliteration
+    - Maintain oral storytelling rhythm
+    - Include traditional song/stanza where appropriate
 
     Output: JSON object with scenes array containing image_prompt and audio_text.
     Ensure valid JSON format parseable by Python's json.loads().
@@ -523,7 +529,7 @@ def main():
     project = get_project(name, story)
 
     create_scenes(project, prompt_template)
-    # create_images(project)
+    create_images(project)
     create_audio(project)
     create_scene_videos(project)
     create_final_scenes(project)
