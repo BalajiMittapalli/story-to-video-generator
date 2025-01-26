@@ -70,7 +70,8 @@ prompt_template = PromptTemplate(
     - Maintain oral storytelling rhythm
     - Include traditional song/stanza where appropriate
     - Generate the audio text in only 1 language: Telugu (te) or Hindi (hi) as string
-    - Generate the audio text of selected language in English. 
+    - Give only in the specified language don't give in english.
+    - Give only once for each scene
 
     Output: JSON object with scenes array containing image_prompt and audio_text.
     Ensure valid JSON format parseable by Python's json.loads().
@@ -227,8 +228,7 @@ def poll_for_completion(prediction_id: str) -> Optional[str]:
                     print(f"Prediction failed or was canceled: {prediction}")
                     return None
                 else:
-                    print(f"Prediction status: {
-                          status}. Polling again in 5 seconds...")
+                    print(f"Prediction status: {status}. Polling again in 5 seconds...")
                     time.sleep(5)
             else:
                 print(f"Error polling prediction: {response.status_code}")
@@ -257,8 +257,7 @@ def create_images(project: Project):
 
         if os.path.exists(image_path):
             scene.image_file = image_path
-            print(f"Image for scene {
-                  scene.index} already exists. Skipping generation.")
+            print(f"Image for scene {scene.index} already exists. Skipping generation.")
             continue
 
         body = {
@@ -337,8 +336,7 @@ def create_audio(project: Project):
 
         if os.path.exists(audio_path):
             scene.audio_file = audio_path
-            print(f"Audio for scene {
-                  scene.index} already exists. Skipping generation.")
+            print(f"Audio for scene {scene.index} already exists. Skipping generation.")
             continue
 
         try:
@@ -373,8 +371,7 @@ def create_scene_videos(project: Project):
 
     for scene in project.scenes:
         if not scene.image_file or not scene.audio_file:
-            print(f"Skipping video creation for scene {
-                  scene.index} - missing assets")
+            print(f"Skipping video creation for scene {scene.index} - missing assets")
             continue
 
         try:
@@ -461,8 +458,7 @@ def create_final_scenes(project: Project):
             try:
                 # Synchronize durations
                 if abs(video_clip.duration - audio_clip.duration) > 0.1:
-                    print(f"Adjusting scene {scene.index} duration (V: {
-                          video_clip.duration:.2f}s, A: {audio_clip.duration:.2f}s)")
+                    print(f"Adjusting scene {scene.index} duration (V: {video_clip.duration:.2f}s, A: {audio_clip.duration:.2f}s)")
                     video_clip = video_clip.subclip(0, audio_clip.duration)
 
                 # Combine audio and video
@@ -552,9 +548,9 @@ def main():
 
     project = get_project(name, story, language)
 
-    # create_scenes(project, prompt_template)
-    create_images(project)
-    # create_audio(project)
+    create_scenes(project, prompt_template)
+    # create_images(project)
+    create_audio(project)
     create_scene_videos(project)
     create_final_scenes(project)
     merge_final_scenes(project)
