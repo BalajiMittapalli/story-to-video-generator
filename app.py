@@ -40,7 +40,7 @@ llm = GoogleGenerativeAI(
 
 
 prompt_template = PromptTemplate(
-    input_variables=["name", "story",],
+    input_variables=["name", "story"],
     template="""
     You are story to video generation AI.
     Your goal is to generate textual scenes
@@ -121,7 +121,7 @@ def get_project(name: str, story: str) -> Project:
     return Project(name=name, story=story, scenes=scenes)
 
 
-def create_scenes(project: Project, prompt_template):
+def create_scenes(project: Project, prompt_template: PromptTemplate):
     scenes_json_path = os.path.join(project.project_dir, "scenes.json")
 
     if os.path.exists(scenes_json_path):

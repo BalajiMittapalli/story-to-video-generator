@@ -1,0 +1,9 @@
+streamlit
+langchain
+langchain-google-genai
+google-generativeai
+moviepy
+python-dotenv
+gTTS
+requests
+pillow # Often needed by moviepy indirectly or for image manipulation
