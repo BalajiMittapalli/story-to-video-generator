@@ -30,6 +30,7 @@ IMAGE_HEIGHT = 768
 IMAGE_WIDTH = 1024
 GENERATIONS_DIR = "generations"
 
+# nvidia gpu inference
 
 llm = GoogleGenerativeAI(
     model=GEMINI_MODEL,
@@ -39,39 +40,30 @@ llm = GoogleGenerativeAI(
 
 
 prompt_template = PromptTemplate(
-    input_variables=["name", "story", "language"],
+    input_variables=["name", "story",],
     template="""
-    You are a cultural preservation specialist creating animated short films from Indian regional folk stories. 
-    Generate video scenes that maintain:
-    1. Authentic local dialects in voiceovers
-    2. Traditional Indian art styles (Warli, Madhubani, Pattachitra, etc.)
-    3. Cultural nuances and historical context
+    You are story to video generation AI.
+    Your goal is to generate textual scenes
 
     Structure requirements:
-    - Maximum 7 scenes
+    - Maximum 8 scenes
     - Each scene contains:
-      * image_prompt: Visual description including:
-        - Specific Indian art style reference
-        - Traditional clothing and jewelry
-        - Regional architecture/landscapes
-        - Cultural symbols/motifs
-        - Character actions/emotions
-      * audio_text: Dialogue/narration in regional language (10-12 words) with local idioms
+      * image_prompt: Visual description including
+      * audio_text: narrated in regional language (15-17 words) 
     - Image and audio text should correspond to create a cohesive narrative in generated scenes.
 
     Image Prompt Guidelines:
-    - Specify art style: "Warli tribal art with white-on-red motifs", "Madhubani-style figures with intricate floral borders"
-    - Include cultural elements: "Nataraja sculpture in background", "Women in Kanjeevaram sarees performing Kolattam"
-    - Add movement cues: "Villagers dancing in circle", "Farmer ploughing field at sunrise"
-    - Use regional color palettes: "Tanjore painting gold leaf accents", "Rajasthani fresco colors"
+    - You are a professional story illustrator. 
+    - Generate a high-quality, detailed image prompt for the following scene. 
+    - Ensure the image matches the style and theme of previous scenes for visual consistency. 
+    - The characters, environment, color palette, and lighting should all sync perfectly with the tone of the story. 
+    - Avoid any visual distortions or inaccuracies. Use a cinematic composition, and ensure clarity in facial expressions, gestures, and background elements.
 
     Audio Guidelines:
-    - Use regional linguistic features: Tamil honorifics, Bengali alliteration
-    - Maintain oral storytelling rhythm
-    - Include traditional song/stanza where appropriate
-    - Generate the audio text in only 1 language: Telugu (te) or Hindi (hi) as string
-    - Give only in the specified language don't give in english.
-    - Give only once for each scene
+    - A professional Telugu voice-over artist and narrator. 
+    - Your goal is to convert the following scene into expressive and natural Telugu audio. 
+    - Maintain proper flow, tone, and emotion as suited to the scene. Ensure clear pronunciation, sentence rhythm, and pauses for realism. 
+    - Speak in standard conversational Telugu, suitable for a storytelling video. Do not translate word-by-word—speak like a native storyteller would.
 
     Output: JSON object with scenes array containing image_prompt and audio_text.
     Ensure valid JSON format parseable by Python's json.loads().
@@ -79,7 +71,7 @@ prompt_template = PromptTemplate(
 
     Story Name: {name}
     Folk Story Content: {story}
-    Language: {language}
+    Language: Telugu
     Answer:"""
 )
 
@@ -94,10 +86,9 @@ class Scene:
 
 
 class Project:
-    def __init__(self, name: str, story: str, language: str, scenes: List[Scene]):
+    def __init__(self, name: str, story: str, scenes: List[Scene]):
         self.name = name
         self.story = story
-        self.language = language
         self.scenes = scenes
 
     @property
@@ -105,14 +96,14 @@ class Project:
         return os.path.join(GENERATIONS_DIR, self.name.replace(" ", "-"))
 
 
-def get_project(name: str, story: str, language: str) -> Project:
+def get_project(name: str, story: str) -> Project:
     project_dir = os.path.join(GENERATIONS_DIR, name.replace(" ", "-"))
     scenes_json_path = os.path.join(project_dir, "scenes.json")
 
     if not os.path.exists(scenes_json_path):
         os.makedirs(project_dir, exist_ok=True)
         print(f"Created new project directory: {project_dir}")
-        return Project(name=name, story=story, language=language, scenes=[])
+        return Project(name=name, story=story, scenes=[])
 
     with open(scenes_json_path, "r") as f:
         scenes_data = json.load(f)
@@ -127,7 +118,7 @@ def get_project(name: str, story: str, language: str) -> Project:
         scene.audio_file = scene_data.get("audio_file")
         scenes.append(scene)
 
-    return Project(name=name, story=story, language=language, scenes=scenes)
+    return Project(name=name, story=story, scenes=scenes)
 
 
 def create_scenes(project: Project, prompt_template):
@@ -159,8 +150,7 @@ def create_scenes(project: Project, prompt_template):
     try:
         response = chain.invoke({
             "name": project.name,
-            "story": project.story,
-            "language": project.language
+            "story": project.story
         })
 
         raw_response = response['text'].strip()
@@ -319,15 +309,7 @@ def create_images(project: Project):
 def create_audio(project: Project):
     audio_dir = os.path.join(project.project_dir, "audio")
     os.makedirs(audio_dir, exist_ok=True)
-    combined_text = " ".join(
-        scene.audio_text for scene in project.scenes if scene.audio_text)
-    combined_audio_path = os.path.join(audio_dir, "combined.mp3")
-    try:
-        tts = gTTS(text=combined_text, lang=project.language, slow=False)
-        tts.save(combined_audio_path)
-        print("Generated combined audio for all scenes.")
-    except Exception as e:
-        print(f"Error generating combined audio: {str(e)}")
+    
     for scene in project.scenes:
         if not scene.audio_text:
             continue
@@ -340,7 +322,7 @@ def create_audio(project: Project):
             continue
 
         try:
-            tts = gTTS(text=scene.audio_text, lang=project.language, slow=False)
+            tts = gTTS(text=scene.audio_text, lang="te", slow=True)
             tts.save(audio_path)
             scene.audio_file = audio_path
             print(f"Generated audio for scene {scene.index}")
@@ -354,7 +336,7 @@ def create_audio(project: Project):
             "index": scene.index,
             "image_prompt": scene.image_prompt,
             "audio_text": scene.audio_text,
-            "image_file": scene.image_file,
+            "image_file": scene.image_file if scene.image_file else "",
             "audio_file": scene.audio_file
         }
         scenes_json.append(scene_data)
@@ -540,17 +522,13 @@ def merge_final_scenes(project: Project):
 def main():
     name = input("Enter the name of your story: ")
     story = input("Enter the story: ")
-    language = input("Enter the language (te for Telugu, hi for Hindi): ")
+   
+   
+    project = get_project(name, story)
 
-    if language not in ["te", "hi"]:
-        print("Invalid language selection. Please choose 'te' for Telugu or 'hi' for Hindi.")
-        return
-
-    project = get_project(name, story, language)
-
-    create_scenes(project, prompt_template)
+    # create_scenes(project, prompt_template)
     # create_images(project)
-    create_audio(project)
+    # create_audio(project)
     create_scene_videos(project)
     create_final_scenes(project)
     merge_final_scenes(project)

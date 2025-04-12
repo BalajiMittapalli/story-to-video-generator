@@ -1,0 +1,58 @@
+[
+    {
+        "index": 1,
+        "image_prompt": "A wide shot of a lush green forest, sunlight dappling through the leaves. Two young men, Luv and Kusha, clad in simple yet elegant warrior attire, stand proudly astride magnificent steeds.  Their faces are strong and determined, their eyes reflecting a youthful confidence.  In the background, a glimpse of Valmiki's ashram is visible, nestled amongst the trees.  The overall style should be reminiscent of classic Indian miniature paintings, with vibrant colors and fine details. Cinematic lighting emphasizes the heroic figures.",
+        "audio_text": "\u0c35\u0c28\u0c02\u0c32\u0c4b \u0c32\u0c35\u0c15\u0c41\u0c36\u0c41\u0c32\u0c41, \u0c35\u0c40\u0c30\u0c41\u0c32\u0c41\u0c17\u0c3e \u0c28\u0c3f\u0c32\u0c3f\u0c1a\u0c3e\u0c30\u0c41.  \u0c30\u0c3e\u0c2e\u0c41\u0c28\u0c3f \u0c05\u0c36\u0c4d\u0c35\u0c2e\u0c47\u0c27\u0c2f\u0c3e\u0c17\u0c02 \u0c17\u0c41\u0c30\u0c4d\u0c30\u0c02 \u0c2a\u0c1f\u0c4d\u0c1f\u0c41\u0c15\u0c41\u0c28\u0c4d\u0c28\u0c3e\u0c30\u0c41.",
+        "image_file": "generations\\The-story-of-luv-and-kusha-2\\images\\1.png",
+        "audio_file": "generations\\The-story-of-luv-and-kusha-2\\audio\\1.mp3"
+    },
+    {
+        "index": 2,
+        "image_prompt": "A dynamic action scene depicting Luv and Kusha skillfully wielding their weapons, engaging in fierce combat with Rama's warriors.  The scene is filled with movement and energy, showcasing the twins' exceptional martial arts skills.  The color palette is rich and warm, with splashes of vibrant color amidst the dust and chaos of battle.  The style should be reminiscent of a classic action painting, with a focus on dynamic composition and expressive character poses.",
+        "audio_text": "\u0c36\u0c24\u0c4d\u0c30\u0c41\u0c35\u0c41\u0c32\u0c24\u0c4b \u0c2f\u0c41\u0c26\u0c4d\u0c27\u0c02 \u0c1a\u0c47\u0c36\u0c3e\u0c30\u0c41.  \u0c35\u0c40\u0c30\u0c4b\u0c1a\u0c3f\u0c24\u0c02\u0c17\u0c3e \u0c2a\u0c4b\u0c30\u0c3e\u0c21\u0c3e\u0c30\u0c41 \u0c32\u0c35\u0c15\u0c41\u0c36\u0c41\u0c32\u0c41.",
+        "image_file": "generations\\The-story-of-luv-and-kusha-2\\images\\2.png",
+        "audio_file": "generations\\The-story-of-luv-and-kusha-2\\audio\\2.mp3"
+    },
+    {
+        "index": 3,
+        "image_prompt": "A close-up shot of Rama, his face etched with surprise and a dawning realization, observing Luv and Kusha from a distance during the battle.  His expression is a mixture of awe and wonder. The background shows the ongoing battle, blurred slightly to focus attention on Rama's emotional reaction.  The lighting is soft and dramatic, highlighting the internal conflict within Rama.",
+        "audio_text": "\u0c30\u0c3e\u0c2e\u0c41\u0c21\u0c41 \u0c06\u0c36\u0c4d\u0c1a\u0c30\u0c4d\u0c2f\u0c02\u0c24\u0c4b \u0c1a\u0c42\u0c38\u0c4d\u0c24\u0c41\u0c28\u0c4d\u0c28\u0c3e\u0c21\u0c41.  \u0c35\u0c3e\u0c30\u0c3f \u0c35\u0c40\u0c30\u0c24\u0c4d\u0c35\u0c3e\u0c28\u0c3f\u0c15\u0c3f \u0c06\u0c36\u0c4d\u0c1a\u0c30\u0c4d\u0c2f\u0c2a\u0c4b\u0c2f\u0c3e\u0c21\u0c41.",
+        "image_file": "generations\\The-story-of-luv-and-kusha-2\\images\\3.png",
+        "audio_file": "generations\\The-story-of-luv-and-kusha-2\\audio\\3.mp3"
+    },
+    {
+        "index": 4,
+        "image_prompt": "A majestic scene depicting Sita, radiant and serene, standing before Rama, her eyes filled with unwavering strength and dignity.  Rama looks at her with deep love and respect.  The background is a simple, elegant setting, focusing attention on the emotional reunion.  The style should be reminiscent of classical Indian art, emphasizing grace and serenity.",
+        "audio_text": "\u0c38\u0c40\u0c24\u0c2e\u0c4d\u0c2e \u0c28\u0c3f\u0c30\u0c4d\u0c2e\u0c32\u0c24\u0c28\u0c41 \u0c28\u0c3f\u0c30\u0c42\u0c2a\u0c3f\u0c02\u0c1a\u0c3f\u0c02\u0c26\u0c3f.  \u0c30\u0c3e\u0c2e\u0c41\u0c28\u0c3f\u0c24\u0c4b \u0c2e\u0c33\u0c4d\u0c33\u0c40 \u0c15\u0c32\u0c3f\u0c38\u0c3f\u0c02\u0c26\u0c3f.",
+        "image_file": "generations\\The-story-of-luv-and-kusha-2\\images\\4.png",
+        "audio_file": "generations\\The-story-of-luv-and-kusha-2\\audio\\4.mp3"
+    },
+    {
+        "index": 5,
+        "image_prompt": "Rama embracing Luv and Kusha, his face radiating joy and relief.  The twins, initially hesitant, eventually embrace their father, their faces reflecting a mixture of awe and affection.  The setting is a grand, yet warm and inviting palace courtyard.  The lighting is soft and golden, creating a feeling of warmth and reconciliation.",
+        "audio_text": "\u0c30\u0c3e\u0c2e\u0c41\u0c21\u0c41 \u0c32\u0c35\u0c15\u0c41\u0c36\u0c41\u0c32\u0c28\u0c41 \u0c15\u0c4c\u0c17\u0c3f\u0c32\u0c3f\u0c02\u0c1a\u0c41\u0c15\u0c41\u0c28\u0c4d\u0c28\u0c3e\u0c21\u0c41.  \u0c15\u0c41\u0c1f\u0c41\u0c02\u0c2c\u0c02 \u0c0f\u0c15\u0c2e\u0c48\u0c02\u0c26\u0c3f.",
+        "image_file": "generations\\The-story-of-luv-and-kusha-2\\images\\5.png",
+        "audio_file": "generations\\The-story-of-luv-and-kusha-2\\audio\\5.mp3"
+    },
+    {
+        "index": 6,
+        "image_prompt": "A wide shot of Luv and Kusha, now grown into handsome young men, standing proudly beside Rama, overlooking the prosperous city of Ayodhya.  The city is depicted in all its glory, showcasing its wealth and prosperity.  The style should be reminiscent of a classic historical painting, emphasizing grandeur and scale.",
+        "audio_text": "\u0c32\u0c35\u0c15\u0c41\u0c36\u0c41\u0c32\u0c41 \u0c06\u0c2f\u0c4b\u0c27\u0c4d\u0c2f\u0c28\u0c41 \u0c2a\u0c3e\u0c32\u0c3f\u0c02\u0c1a\u0c3e\u0c30\u0c41.  \u0c27\u0c30\u0c4d\u0c2e\u0c02 \u0c35\u0c3f\u0c1c\u0c2f\u0c02 \u0c38\u0c3e\u0c27\u0c3f\u0c02\u0c1a\u0c3f\u0c02\u0c26\u0c3f.",
+        "image_file": "generations\\The-story-of-luv-and-kusha-2\\images\\6.png",
+        "audio_file": "generations\\The-story-of-luv-and-kusha-2\\audio\\6.mp3"
+    },
+    {
+        "index": 7,
+        "image_prompt": "A close-up shot of Sita, peacefully merging with the earth, surrounded by ethereal light.  The expression on her face is one of serene acceptance and peace.  The background is a soft, earthy landscape, emphasizing the natural beauty of the scene. The style should be reminiscent of a classical religious painting, emphasizing spiritual serenity.",
+        "audio_text": "\u0c38\u0c40\u0c24\u0c2e\u0c4d\u0c2e \u0c2d\u0c42\u0c2e\u0c3f\u0c32\u0c4b \u0c10\u0c15\u0c4d\u0c2f\u0c2e\u0c48\u0c02\u0c26\u0c3f.  \u0c36\u0c3e\u0c02\u0c24\u0c3f\u0c2f\u0c41\u0c24\u0c02\u0c17\u0c3e \u0c35\u0c3f\u0c36\u0c4d\u0c30\u0c3e\u0c02\u0c24\u0c3f \u0c24\u0c40\u0c38\u0c41\u0c15\u0c41\u0c02\u0c26\u0c3f.",
+        "image_file": "generations\\The-story-of-luv-and-kusha-2\\images\\7.png",
+        "audio_file": "generations\\The-story-of-luv-and-kusha-2\\audio\\7.mp3"
+    },
+    {
+        "index": 8,
+        "image_prompt": "A panoramic view of Ayodhya at sunset, showcasing its grandeur and prosperity under the rule of Luv and Kusha.  The sky is ablaze with vibrant colors, creating a majestic and peaceful atmosphere.  The style should be reminiscent of a classic landscape painting, emphasizing the beauty and harmony of the kingdom.",
+        "audio_text": "\u0c06\u0c2f\u0c4b\u0c27\u0c4d\u0c2f \u0c35\u0c30\u0c4d\u0c27\u0c3f\u0c32\u0c4d\u0c32\u0c41\u0c24\u0c4b\u0c02\u0c26\u0c3f.  \u0c32\u0c35\u0c15\u0c41\u0c36\u0c41\u0c32 \u0c2a\u0c3e\u0c32\u0c28\u0c32\u0c4b \u0c38\u0c41\u0c16\u0c36\u0c3e\u0c02\u0c24\u0c41\u0c32\u0c41.",
+        "image_file": "generations\\The-story-of-luv-and-kusha-2\\images\\8.png",
+        "audio_file": "generations\\The-story-of-luv-and-kusha-2\\audio\\8.mp3"
+    }
+]
